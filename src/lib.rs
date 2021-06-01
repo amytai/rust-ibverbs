@@ -806,7 +806,7 @@ impl Gid {
     /// `ffi::ibv_gid` union.
     #[allow(dead_code)]
     pub fn subnet_prefix(&self) -> u64 {
-        u64::from_be_bytes(self.raw[..8].try_into().unwrap())
+        u64::from_le_bytes(self.raw[..8].try_into().unwrap())
     }
 
     /// Expose the interface_id component of the `Gid` as a u64. This is
@@ -814,7 +814,7 @@ impl Gid {
     /// `ffi::ibv_gid` union.
     #[allow(dead_code)]
     pub fn interface_id(&self) -> u64 {
-        u64::from_be_bytes(self.raw[8..].try_into().unwrap())
+        u64::from_le_bytes(self.raw[8..].try_into().unwrap())
     }
 }
 

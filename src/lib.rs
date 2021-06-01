@@ -805,7 +805,7 @@ impl Gid {
     /// equivalent to accessing the `global.subnet_prefix` component of the
     /// `ffi::ibv_gid` union.
     #[allow(dead_code)]
-    fn subnet_prefix(&self) -> u64 {
+    pub fn subnet_prefix(&self) -> u64 {
         u64::from_be_bytes(self.raw[..8].try_into().unwrap())
     }
 
@@ -813,7 +813,7 @@ impl Gid {
     /// equivalent to accessing the `global.interface_id` component of the
     /// `ffi::ibv_gid` union.
     #[allow(dead_code)]
-    fn interface_id(&self) -> u64 {
+    pub fn interface_id(&self) -> u64 {
         u64::from_be_bytes(self.raw[8..].try_into().unwrap())
     }
 }

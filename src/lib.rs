@@ -791,8 +791,6 @@ pub struct PreparedQueuePair<'res> {
 ///
 /// It appears that `global` exists for convenience, but can be safely ignored.
 /// For continuity, the methods `subnet_prefix` and `interface_id` are provided.
-/// These methods read the array as big endian, regardless of native cpu
-/// endianness.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Default, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 #[repr(transparent)]
@@ -806,7 +804,14 @@ impl Gid {
     /// `ffi::ibv_gid` union.
     #[allow(dead_code)]
     pub fn subnet_prefix(&self) -> u64 {
-        u64::from_le_bytes(self.raw[..8].try_into().unwrap())
+        #[cfg(not(feature = "big-endian"))]
+        {
+            u64::from_le_bytes(self.raw[..8].try_into().unwrap())
+        }
+        #[cfg(feature = "big-endian")]
+        {
+            u64::from_be_bytes(self.raw[..8].try_into().unwrap())
+        }
     }
 
     /// Expose the interface_id component of the `Gid` as a u64. This is
@@ -814,7 +819,14 @@ impl Gid {
     /// `ffi::ibv_gid` union.
     #[allow(dead_code)]
     pub fn interface_id(&self) -> u64 {
-        u64::from_le_bytes(self.raw[8..].try_into().unwrap())
+        #[cfg(not(feature = "big-endian"))]
+        {
+            u64::from_le_bytes(self.raw[8..].try_into().unwrap())
+        }
+        #[cfg(feature = "big-endian")]
+        {
+            u64::from_be_bytes(self.raw[8..].try_into().unwrap())
+        }
     }
 }
 
@@ -1333,7 +1345,16 @@ mod test_serde {
         };
 
         let mut qpe = qpe_default;
-        qpe.gid.raw = unsafe { std::mem::transmute([87_u64.to_be(), 192_u64.to_be()]) };
+        
+        #[cfg(not(feature = "big-endian"))]
+        {
+            qpe.gid.raw = unsafe { std::mem::transmute([87_u64.to_le(), 192_u64.to_le()]) };
+        }
+        #[cfg(feature = "big-endian")]
+        {
+            qpe.gid.raw = unsafe { std::mem::transmute([87_u64.to_be(), 192_u64.to_be()]) };
+
+        }
         let encoded = bincode::serialize(&qpe).unwrap();
 
         let decoded: QueuePairEndpoint = bincode::deserialize(&encoded).unwrap();

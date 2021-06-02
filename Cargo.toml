@@ -37,6 +37,7 @@ bindgen = "0.58"
 
 [features]
 default = ["serde"]
+big-endian = []
 
 [dev-dependencies]
 bincode = "1.3"

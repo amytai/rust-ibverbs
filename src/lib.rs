@@ -828,6 +828,21 @@ impl Gid {
             u64::from_be_bytes(self.raw[8..].try_into().unwrap())
         }
     }
+
+    /// Create GID from the provided subnet prefix and interface ID
+    pub fn new(subnet_prefix: u64, interface_id: u64) -> Gid {
+        let sp_bytes: [u8; 8] = u64::to_le_bytes(subnet_prefix);
+        let ii_bytes: [u8; 8] = u64::to_le_bytes(interface_id);
+        let mut raw_bytes: [u8; 16] = [0; 16]; //  = [sp_bytes, ii_bytes];
+        for i in 0..sp_bytes.len() {
+            raw_bytes[i] = sp_bytes[i];
+        }
+        for i in 0..ii_bytes.len() {
+            raw_bytes[sp_bytes.len() + i] = ii_bytes[i];
+        }
+
+        Gid { raw: raw_bytes }
+    }
 }
 
 impl From<ffi::ibv_gid> for Gid {
@@ -1345,7 +1360,7 @@ mod test_serde {
         };
 
         let mut qpe = qpe_default;
-        
+
         #[cfg(not(feature = "big-endian"))]
         {
             qpe.gid.raw = unsafe { std::mem::transmute([87_u64.to_le(), 192_u64.to_le()]) };
@@ -1353,7 +1368,6 @@ mod test_serde {
         #[cfg(feature = "big-endian")]
         {
             qpe.gid.raw = unsafe { std::mem::transmute([87_u64.to_be(), 192_u64.to_be()]) };
-
         }
         let encoded = bincode::serialize(&qpe).unwrap();
 
@@ -1362,5 +1376,20 @@ mod test_serde {
         assert_eq!(decoded.gid.interface_id(), 192);
         assert_eq!(qpe, decoded);
         assert_ne!(qpe, qpe_default);
+    }
+}
+
+#[cfg(test)]
+mod basic_tests {
+    use super::*;
+    #[test]
+    fn test_gid() {
+        let gid: Gid = unsafe {
+            Gid::new(
+                std::mem::transmute(123_u64.to_le()),
+                std::mem::transmute(456_u64.to_le()),
+            )
+        };
+        assert_eq!(gid.subnet_prefix(), 123);
     }
 }

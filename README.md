@@ -54,6 +54,28 @@ Much of the documentation of this crate borrows heavily from the excellent posts
 [RDMAmojo]. If you are going to be working a lot with ibverbs, chances are you will want to
 head over there. In particular, [this overview post][1] may be a good place to start.
 
+## Build hints
+
+You must have clang installed  (as of now, 6.0 seems to work) in order for this library to compile.
+Otherwise, you get weird errors such as:
+
+```
+/root/.cargo/git/checkouts/rust-ibverbs-ba51b5a9eecfbe0d/2d53c14/vendor/rdma-core/build/include/ccan/build_assert.h:23:26: error: size of unnamed array is negative
+    do { (void) sizeof(char [1 - 2*!(cond)]); } while(0)
+                            ^
+  /root/.cargo/git/checkouts/rust-ibverbs-ba51b5a9eecfbe0d/2d53c14/vendor/rdma-core/ibacm/src/acm.c:629:3: note: in expansion of macro ‘BUILD_ASSERT’
+     BUILD_ASSERT(sizeof(IBACM_IBACME_SERVER_PATH) <=
+     ^~~~~~~~~~~~
+```
+
+and
+
+```
+/usr/include/sched.h:29:10: fatal error: 'stddef.h' file not found
+```
+
+even though, for example, `stddef.h` clearly exists at `/usr/include/linux/stddef.h`.
+
 [`rdma-core`]: https://github.com/linux-rdma/rdma-core
 [`libibverbs/verbs.h`]: https://github.com/linux-rdma/rdma-core/blob/master/libibverbs/verbs.h
 [library package]: https://launchpad.net/ubuntu/+source/libibverbs

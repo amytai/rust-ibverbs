@@ -969,9 +969,9 @@ impl<'res> PreparedQueuePair<'res> {
             | ffi::ibv_qp_attr_mask::IBV_QP_AV
             | ffi::ibv_qp_attr_mask::IBV_QP_PATH_MTU
             | ffi::ibv_qp_attr_mask::IBV_QP_DEST_QPN
-            | ffi::ibv_qp_attr_mask::IBV_QP_RQ_PSN
-            | ffi::ibv_qp_attr_mask::IBV_QP_MAX_DEST_RD_ATOMIC
-            | ffi::ibv_qp_attr_mask::IBV_QP_MIN_RNR_TIMER;
+            | ffi::ibv_qp_attr_mask::IBV_QP_RQ_PSN;
+            //| ffi::ibv_qp_attr_mask::IBV_QP_MAX_DEST_RD_ATOMIC
+            //| ffi::ibv_qp_attr_mask::IBV_QP_MIN_RNR_TIMER;
         let errno = unsafe { ffi::ibv_modify_qp(self.qp, &mut attr as *mut _, mask.0 as i32) };
         if errno != 0 {
             return Err(io::Error::from_raw_os_error(errno));
@@ -986,11 +986,11 @@ impl<'res> PreparedQueuePair<'res> {
         attr.rnr_retry = self.rnr_retry;
         attr.max_rd_atomic = 1;
         let mask = ffi::ibv_qp_attr_mask::IBV_QP_STATE
-            | ffi::ibv_qp_attr_mask::IBV_QP_TIMEOUT
-            | ffi::ibv_qp_attr_mask::IBV_QP_RETRY_CNT
-            | ffi::ibv_qp_attr_mask::IBV_QP_SQ_PSN
-            | ffi::ibv_qp_attr_mask::IBV_QP_RNR_RETRY
-            | ffi::ibv_qp_attr_mask::IBV_QP_MAX_QP_RD_ATOMIC;
+            //| ffi::ibv_qp_attr_mask::IBV_QP_TIMEOUT
+            //| ffi::ibv_qp_attr_mask::IBV_QP_RETRY_CNT
+            | ffi::ibv_qp_attr_mask::IBV_QP_SQ_PSN;
+            //| ffi::ibv_qp_attr_mask::IBV_QP_RNR_RETRY
+            //| ffi::ibv_qp_attr_mask::IBV_QP_MAX_QP_RD_ATOMIC;
         let errno = unsafe { ffi::ibv_modify_qp(self.qp, &mut attr as *mut _, mask.0 as i32) };
         if errno != 0 {
             return Err(io::Error::from_raw_os_error(errno));
